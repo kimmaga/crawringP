@@ -10,7 +10,7 @@ import org.jsoup.select.Elements;
 /**
  * 
  * @author Carf
- * @desc 공통 크롤링 인스턴스
+ * @desc 
  * @Ver 0.1
  * @20190710
  */
@@ -26,6 +26,9 @@ public class CommonCrawring {
 	CommonCrawring(String urlA,String urlB) {
 		this.urlA = urlA;
 		this.urlB = urlB;
+	}
+	CommonCrawring(String urlA) {
+		this.urlA = urlA;
 	}
 	/**
 	 * 
@@ -46,8 +49,15 @@ public class CommonCrawring {
 	 */
 	public Document commonCrawler() {
 		Document targetSite = null;
+		String finalUrl = null;
+		if(urlB == null) {
+			finalUrl = urlA;
+		}
+		else if(urlA == null) {
+			finalUrl = urlB;
+		}else finalUrl = urlA + urlB;
 		try {
-			targetSite= connectSite(urlA+urlB);
+			targetSite= connectSite(finalUrl);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
