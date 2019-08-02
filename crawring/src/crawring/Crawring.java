@@ -32,16 +32,12 @@ public class Crawring {
 				Elements author = detailDocument.select("li.theAuthor");
 				Elements img_url = detailDocument.select("a.js-image-size__link");
 				Elements textElements = detailDocument.select("div.afd-char-text");
-
 				System.out.println(title.text());
 				System.out.println(regDate.text().substring(17,21)+"-"+regDate.text().substring(11,15)+"-"+regDate.text().substring(8,10)+" "
 						+regDate.text().substring(0,5));
 				for(int j=0;j<textElements.size();j++) {
 					System.out.println(specrArr[j] + " = " + textElements.get(j).text());
 				}
-
-				
-
 			}
 		}
 		
