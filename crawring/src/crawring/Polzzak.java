@@ -1,6 +1,7 @@
 package crawring;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
@@ -15,52 +16,66 @@ public class Polzzak {
 	}
 
 	private void polzzak() {
-		String big_url = "http://www.260mm.com";
+		String big_url = "http://www.poljjak.com";
 		String url = "http://www.poljjak.com/goods/goods_list.php?cateCd=005001";
 		String productUrl = "/shop/shopbrand.html?";
 		String param1 = "xcode=";
 		String pamra2 = "type=";
-		CommonCrawring archdailyCrawring = new CommonCrawring(url);
-		Document document = archdailyCrawring.commonCrawler();
-		Elements total_numb = document.getElementsByTag("strong");
-		BigDecimal total_number = new BigDecimal(total_numb.text());
+		CommonCrawring polzzak = new CommonCrawring(url);//item_photo_box
+		Document document = polzzak.commonCrawler();
+		String total_numb = document.getElementsByClass("pick_list_num").select("strong").text();
+		BigDecimal total_number = new BigDecimal(StringUtils.replace(total_numb,",",""));
+		System.out.println(total_number);
 		BigDecimal page_limit = new BigDecimal("80");
 		BigDecimal finalPage = total_number.divide(page_limit, BigDecimal.ROUND_HALF_UP);
-		for (int j = 1; j <= finalPage.intValue(); j++) {
-			CommonCrawring page260 = new CommonCrawring(
-					"http://www.260mm.com/shop/shopbrand.html?page=" + j + "&xcode=001&type=X");
-			Document page260_document = page260.commonCrawler();
-			Elements elements = page260_document.select(".product_table .Brand_prodtHeight a");
-
+		System.out.println("finalPage = " + finalPage);
+	for (int j = 1; j <= finalPage.intValue(); j++) {
+			CommonCrawring page_polzzak = new CommonCrawring(
+					//"http://www.poljjak.com/goods/goods_list.php?page="+j+"&cateCd=005001"
+							"http://www.poljjak.com/goods/goods_list.php?cateCd=005001");
+			Document document_polzzak = page_polzzak.commonCrawler();
+			Elements elements = document_polzzak.select(".item_photo_box a");
 			Integer index = 0;
 			for (Element ele : elements) {
 				String detailUrl = ele.attr("href");
-				CommonCrawring detailCrawring = new CommonCrawring(big_url + detailUrl);
+				CommonCrawring detailCrawring = new CommonCrawring(big_url + StringUtils.replace(detailUrl,"..",""));
 				Document document_detail = detailCrawring.commonCrawler();
-				String image = document_detail.select(".detail_image").attr("src");
-				String price = document_detail.select("#price_text").text();
-				String title = document_detail.select("title").text();
-				Elements options = document_detail.select("select.vo_value_list > option");
-
-				title = title.replace("[", "").replace("]", "").replace("ï¿½Ø¿ï¿½", "").replace("260mm  ", "");
-				String product_title = StringUtils.split(title, "(")[0];
-				String product_id = StringUtils.split(title, "(")[1].replace(")", "");
+				String image = document_detail.select("#mainImage > img").attr("src");
+				String price = StringUtils.replace(
+						StringUtils.replace(StringUtils.replace(document_detail.select(".item_price").text(),"ÆÇ¸Å°¡ ",""),"¿ø",""),",","");
+				String title = document_detail.select(".item_detail_tit > h3").text();
+				Elements options = document_detail.select("select.chosen-select > option");
+				String[] productArray = StringUtils.split(title,",");
+				String product_title = productArray[0];
+				String product_id = StringUtils.replace(productArray[productArray.length-1]," ","");
 
 				System.out.println("index = " + index);
 				System.out.println("product_id = " + product_id);
 				System.out.println("product_title = " + product_title);
 				System.out.println("price = " + price);
 				System.out.println("imageUrl = " + image);
-				System.out.println("finalPage = " + finalPage);
+				System.out.println("ÅëÈ­ = KRW");
+//				System.out.println("finalPage = " + finalPage);
 				index++;
+				String[] polzzakSize= {"220","225","230","235","240","245","250","255","260","265","270","275","280","285","290","295","300","305","310"
+						,"XS","S","M","L","XL","2XL","3XL"};
+				//System.out.println(options);
+				boolean flag =false;
 				for (Element ele1 : options) {
-					if (!ele1.text().equals("--- ï¿½Ê¼ï¿½ ï¿½É¼ï¿½ï¿½Ô´Ï´ï¿½ ---")) {
-						// System.out.println("options = " + ele1.text());
+					flag = false;
+					String oldtext = ele1.text();
+					if(!oldtext.contains("[Ç°Àý]")) {
+						String sizeText = StringUtils.replace(StringUtils.split(StringUtils.replace(ele1.text()," ",""),"/")[0],"mm","");
+						for(int z=0;z<polzzakSize.length;z++) {
+							if(polzzakSize[z].equals(sizeText)) {
+								flag = true;
+							}
+						}
+						if(flag) System.out.println(sizeText);
 					}
 				}
-
 			}
 
-		}
+		}//for
 	}
 }
